@@ -927,6 +927,75 @@ cpdefine("inline:com-chilipeppr-workspace-tinyg", ["chilipeppr_ready"], function
             this.shuttlexpressObj.init();
             //End ShuttleXpress
 
+            // SUPER Touch Plate
+            // Dynamically load the Touch Plate widget, i.e. wait til user clicks on 
+            // the button first time.
+            this.touchPlateObj = function() {
+                return {
+                touchPlateBtn: null,
+                touchPlateDiv: null,
+                touchPlateInstance: null,
+                init: function() {
+                    this.touchPlateBtn = $('#com-chilipeppr-ws-menu .super-touchplate-button');
+                    this.touchPlateDiv = $('#com-chilipeppr-ws-super-touchplate');
+                    this.setupBtn();
+                    console.log("done instantiating touchPlate add-on widget");
+                },
+                setupBtn: function() {
+                    this.touchPlateBtn.click(this.toggletouchPlate.bind(this));
+                },
+                toggletouchPlate: function() {
+                    if (this.touchPlateDiv.hasClass("hidden")) {
+                        // unhide
+                        this.showtouchPlate();
+                    }
+                    else {
+                        this.hidetouchPlate();
+                    }
+                },
+                showtouchPlate: function(callback) {
+                    this.touchPlateDiv.removeClass("hidden");
+                    this.touchPlateBtn.addClass("active");
+
+                    // see if instantiated already
+                    // if so, just activate
+                    if (this.touchPlateInstance != null) {
+                        this.touchPlateInstance.activateWidget();
+                        if (callback) callback();
+                    }
+                    else {
+                        // otherwise, dynamic load
+                        var that = this;
+                        chilipeppr.load(
+                            "#com-chilipeppr-ws-super-touchplate",
+                            "http://raw.githubusercontent.com/yoda38/widget-super-touchplate/master/auto-generated-widget.html",
+                            function() {
+                                require(["inline:com-chilipeppr-widget-super-touchplate"], function(touchPlate) {
+                                    that.touchPlateInstance = touchPlate;
+                                    console.log("touchPlate instantiated. touchPlateInstance:", that.touchPlateInstance);
+                                    that.touchPlateInstance.init();
+                                    //eagleInstance.activateWidget();
+                                    if (callback) callback();
+                                });
+                            }
+                        );
+                    }
+                    $(window).trigger('resize');
+                },
+                hidetouchPlate: function() {
+                    this.touchPlateDiv.addClass("hidden");
+                    this.touchPlateBtn.removeClass("active");
+                    if (this.touchPlateInstance != null) {
+                        this.touchPlateInstance.unactivateWidget();
+                    }
+                    $(window).trigger('resize');
+                },
+                }
+            }();
+            this.touchPlateObj.init();
+            //End Touch Plate
+
+
             // Touch Plate
             // Dynamically load the Touch Plate widget, i.e. wait til user clicks on 
             // the button first time.
